@@ -16,19 +16,20 @@ func CreateStreamsMetaThread(client *client.Client) {
 	id, err := thread.Decode("bafk2pukjgfvfgantvjqk7ggtv7h2brji2iw74ztfcfsq5so6kx6alkq")
 	CheckErr(err)
 	fmt.Println(id)
-
-	client.NewDB(context.Background(), id)
+	client.DeleteDB(context.Background(), id)
+	err = client.NewDB(context.Background(), id)
 	CheckErr(err)
 
-	// // move to setup func
-	client.NewCollection(context.Background(), id, db.CollectionConfig{
+	// move to setup func
+	err = client.NewCollection(context.Background(), id, db.CollectionConfig{
 		Name:   "Organization",
 		Schema: util.SchemaFromInstance(&types.Owner{}, false),
 	})
+	CheckErr(err)
 
-	client.NewCollection(context.Background(), id, db.CollectionConfig{
+	err = client.NewCollection(context.Background(), id, db.CollectionConfig{
 		Name:   "Individual",
 		Schema: util.SchemaFromInstance(&types.Owner{}, false),
 	})
-	// CheckErr(err)
+	CheckErr(err)
 }

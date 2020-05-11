@@ -2,17 +2,17 @@ package types
 
 import (
 	core "github.com/textileio/go-threads/core/db"
-	"github.com/textileio/go-threads/core/thread"
 )
 
 type Owner struct {
 	ID       core.InstanceID `json:"_id"`
-	ThreadID thread.ID       `json:"threadID"`
+	ThreadID string          `json:"threadID"`
 }
 
 type OwnerMetadata struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID    core.InstanceID `json:"_id"`
+	Name  string          `json:"name"`
+	Email string          `json:"email"`
 }
 
 type OwnerToken struct {
