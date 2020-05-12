@@ -4,9 +4,10 @@ import (
 	core "github.com/textileio/go-threads/core/db"
 )
 
-type Owner struct {
+type OwnerPointer struct {
 	ID       core.InstanceID `json:"_id"`
 	ThreadID string          `json:"threadID"`
+	Name     string          `json:"name"`
 }
 
 type OwnerMetadata struct {

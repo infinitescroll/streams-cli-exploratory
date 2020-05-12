@@ -19,13 +19,13 @@ func Get(ctx *cli.Context, tclient *client.Client) error {
 		id,
 		"Organization",
 		&db.Query{},
-		&types.Owner{},
+		&types.OwnerPointer{},
 	)
 	if err != nil {
 		return err
 	}
 
-	orgs := results.([]*types.Owner)
+	orgs := results.([]*types.OwnerPointer)
 
 	for _, v := range orgs {
 		id, err := thread.Decode(v.ThreadID)
