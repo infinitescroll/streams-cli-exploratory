@@ -16,7 +16,6 @@ func CreateStreamsMetaThread(client *client.Client) {
 	id, err := thread.Decode("bafk2pukjgfvfgantvjqk7ggtv7h2brji2iw74ztfcfsq5so6kx6alkq")
 	CheckErr(err)
 	fmt.Println(id)
-	client.DeleteDB(context.Background(), id)
 	err = client.NewDB(context.Background(), id)
 	CheckErr(err)
 

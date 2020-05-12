@@ -12,14 +12,11 @@ import (
 )
 
 func main() {
-	var tclient *client.Client
-	var err error
-
-	tclient, err = client.NewClient("0.0.0.0:6006", grpc.WithInsecure())
+	tclient, err := client.NewClient("0.0.0.0:6006", grpc.WithInsecure())
 	utils.CheckErr(err)
-	defer tclient.Close()
+	// defer tclient.Close()
 
-	utils.CreateStreamsMetaThread(tclient)
+	// utils.CreateStreamsMetaThread(tclient)
 
 	app := &cli.App{
 		Commands: []*cli.Command{
@@ -36,6 +33,13 @@ func main() {
 									return org.Create(c, tclient)
 								},
 								ArgsUsage: "<email>",
+							},
+							{
+								Name: "get",
+								Action: func(c *cli.Context) error {
+									return org.Get(c, tclient)
+								},
+								ArgsUsage: "<name>",
 							},
 						},
 					},
