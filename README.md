@@ -1,5 +1,8 @@
 # A sample of streams-core
 
+![streams architecture](https://github.com/openworklabs/streams-cli-exploratory/blob/master/static/streamsarch.png)<br /><br />
+![a single stream](https://github.com/openworklabs/streams-cli-exploratory/blob/master/static/singlestream.png)
+
 ### How archival works
 1. The stream-owner creates a stream, which under the hood:
   - Instantiates a new thread + db
