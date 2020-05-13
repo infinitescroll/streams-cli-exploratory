@@ -39,8 +39,10 @@ For simplicity, let's pretend that all streams data is public, so anyone can acc
 1. boot up
 2. get a list of all streams (in reality, only getting all _public_ streams, or private streams that have granted access to this app)
 3. register a [Listener](https://godoc.org/github.com/textileio/go-threads/api/client#Client.Listen) on each of the streams to know when changes to the streams Resource and Deal collections occur
-4.  When a new resource gets added, the consumer application factors that in to its own backend. In our case, this might register a webhook or event polling mechanism to the resource.
-5. When a new deal gets created, show some informative graphics in the UI.
+4.  When a new resource gets added, the consumer application factors that in to its own backend. In our case, this might register a webhook or event polling mechanism to the resource. It might populate the elastic search database with new or updated data.
+5. When a new deal gets created, the consumer application factors that in to its own backend. This might populate elastic with a new `cid` representing a deal hash alongside some data in elastic search. 
+6. The elastic search backend could expose its own API, so that front-end clients can query the elastic instance.
+7. The consumer application's web app could read data from the elastic search API, and write data via the streams-api.
 
 QUESTION: How does this app gain access to each stream-owner's resource tokens?
 
@@ -48,6 +50,14 @@ QUESTION: How does this app gain access to each stream-owner's resource tokens?
 In the stream-metadata, we can provide different types of streams. To start, we could mark all as "public" and thus, consumer applications automatically get access to the data inside those streams (i.e., no one needs to give permission). 
 
 Later, streams can have more granular privacy types, and the consumer apps would need to request permission to these streams to be able to view/use the data. Those streams can also get created in an electron app on the users own machine. So they can have full control over the thread and database and who is getting invited to it. 
+
+### Open questions:
+- [ ] Where is the best place to store access tokens? Do apps need these access tokens? How can users share their archived data and resources without sharing access tokens? One thing to think about here is that if we put the accesss tokens in the stream-owner thread, then all streams essentially share the same access token. Putting the access token at the stream level itself enables more granular privacy and permission management, but it creates a more complex streams-creation expreience (you have to create a new access token for each stream or grab it from another stream that already has it). It also makes it harder to share user data with a consumer app, without sharing the access tokens. 
+- [ ] Authentication for streams-cli/api (related to the first Q)
+- [ ] General permissions for streams-cli/api (related to the first Q)
+- [ ] Is it safe to create a DB and a collection that already exist? Can we ignore those "____ already exists" errors?
+- [ ] Security with powergate and partitioning a single node's wallet to use many wallets (1 per stream)
+- [ ] Handling edits / removal of data, do we fork a thread? 
 
 ### What's implemented in this exploratory repo
 The bullet points might be implemented in code in a different order:
@@ -74,10 +84,3 @@ The bullet points might be implemented in code in a different order:
 - stream-meta thread of pointers to all the streams
 - pointers from stream back to its owner
 - Single stream functionality
-
-### Open questions:
-- [ ] Where is the best place to store access tokens? Do apps need these access tokens? How can users share their archived data and resources without sharing access tokens? One thing to think about here is that if we put the accesss tokens in the stream-owner thread, then all streams essentially share the same access token. Putting the access token at the stream level itself enables more granular privacy and permission management, but it creates a more complex streams-creation expreience (you have to create a new access token for each stream or grab it from another stream that already has it). It also makes it harder to share user data with a consumer app, without sharing the access tokens. 
-- [ ] Is it safe to create a DB and a collection that already exist? Can we ignore those "____ already exists" errors?
-- [ ] Authentication for streams-cli
-- [ ] Security with powergate and partitioning a single node's wallet to use many wallets (1 per stream)
-- [ ] Handling edits / removal of data, do we fork a thread? 
