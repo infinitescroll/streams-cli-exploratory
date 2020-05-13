@@ -17,4 +17,6 @@ type StreamPointer struct {
 	ID       core.InstanceID `json:"_id"`
 	ThreadID string          `json:"threadID"`
 	Name     string          `json:"name"`
+	Public   bool            `json:"public"`
+	// other auth tings?
 }
