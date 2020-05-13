@@ -2,7 +2,6 @@ package stream
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/multiformats/go-multiaddr"
 	"github.com/openworklabs/streams-cli/v2/types"
@@ -10,7 +9,9 @@ import (
 	"github.com/textileio/go-threads/api/client"
 	"github.com/textileio/go-threads/core/thread"
 	"github.com/textileio/go-threads/db"
+	"github.com/textileio/go-threads/util"
 	pow "github.com/textileio/powergate/api/client"
+	"github.com/textileio/powergate/ffs/api"
 	"github.com/urfave/cli/v2"
 	"google.golang.org/grpc"
 )
@@ -27,6 +28,10 @@ func Create(ctx *cli.Context, tclient *client.Client) error {
 
 	streamThreadId := thread.NewIDV1(thread.Raw, 32)
 	tclient.NewDB(ctx.Context, streamThreadId)
+	tclient.NewCollection(ctx.Context, streamThreadId, db.CollectionConfig{
+		Name:   "StreamMeta",
+		Schema: util.SchemaFromInstance(&types.StreamMeta{}, false),
+	})
 
 	_, err = tclient.Create(
 		ctx.Context,
@@ -82,10 +87,10 @@ func fetchOrgThread(ctx *cli.Context, tclient *client.Client) (thread.ID, error)
 	return threadID, nil
 }
 
-func createFFSInstance(ctx *cli.Context) (string, string, string, error) {
+func createFFSInstance(ctx *cli.Context) (string, string, []api.AddrInfo, error) {
 	ma, err := multiaddr.NewMultiaddr("/ip4/127.0.0.1/tcp/5002")
 	if err != nil {
-		return "", "", "", err
+		return "", "", []api.AddrInfo{}, err
 	}
 
 	var opts []grpc.DialOption
@@ -94,14 +99,20 @@ func createFFSInstance(ctx *cli.Context) (string, string, string, error) {
 	opts = append(opts, grpc.WithPerRPCCredentials(auth))
 	pclient, err := pow.NewClient(ma, opts...)
 	if err != nil {
-		return "", "", "", err
+		return "", "", []api.AddrInfo{}, err
 	}
+
 	ffsID, token, err := pclient.FFS.Create(ctx.Context)
+	if err != nil {
+		return "", "", []api.AddrInfo{}, err
+	}
 
 	addrInfo, err := pclient.FFS.Addrs(context.WithValue(ctx.Context, pow.AuthKey, token))
-	fmt.Println(addrInfo, err)
+	if err != nil {
+		return "", "", []api.AddrInfo{}, err
+	}
 
-	return ffsID, token, "", err
+	return ffsID, token, addrInfo, nil
 }
 
 func createStreamPointer(threadID thread.ID, name string) *types.StreamPointer {
@@ -112,12 +123,12 @@ func createStreamPointer(threadID thread.ID, name string) *types.StreamPointer {
 	}
 }
 
-func createStreamMeta(name string, ffsID string, ffsAuthToken string, walletAddress string) *types.StreamMeta {
+func createStreamMeta(name string, ffsID string, ffsAuthToken string, walletAddresses []api.AddrInfo) *types.StreamMeta {
 	return &types.StreamMeta{
-		ID:            "",
-		Name:          name,
-		FFSID:         ffsID,
-		FFSAuthToken:  ffsAuthToken,
-		WalletAddress: walletAddress,
+		ID:              "",
+		Name:            name,
+		FFSID:           ffsID,
+		FFSAuthToken:    ffsAuthToken,
+		WalletAddresses: walletAddresses,
 	}
 }

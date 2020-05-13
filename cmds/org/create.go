@@ -15,6 +15,7 @@ func Create(ctx *cli.Context, tclient *client.Client) error {
 	orgThreadId := thread.NewIDV1(thread.Raw, 32)
 	orgName := ctx.Args().First()
 
+	// Create new org-owner pointer on the streams-master thread
 	_, err := tclient.Create(
 		ctx.Context,
 		id,
@@ -26,6 +27,14 @@ func Create(ctx *cli.Context, tclient *client.Client) error {
 	}
 
 	err = tclient.NewDB(ctx.Context, orgThreadId)
+	if err != nil {
+		return err
+	}
+
+	err = tclient.NewCollection(ctx.Context, orgThreadId, db.CollectionConfig{
+		Name:   "StreamPointer",
+		Schema: util.SchemaFromInstance(&types.StreamPointer{}, false),
+	})
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -56,6 +57,17 @@ func main() {
 						},
 						ArgsUsage: "<name>",
 					},
+				},
+			},
+			{
+				Name: "reset",
+				Action: func(c *cli.Context) error {
+					id := utils.GetMetaThread()
+					err := tclient.DeleteDB(context.Background(), id)
+					if err != nil {
+						return err
+					}
+					return nil
 				},
 			},
 		},
