@@ -46,12 +46,16 @@ For simplicity, let's pretend that all streams data is public, so anyone can acc
 
 QUESTION: How does this app gain access to each stream-owner's resource tokens?
 
-### Future of privacy and app-siloed data
+### Future of privacy and user-siloed data
 In the stream-metadata, we can provide different types of streams. To start, we could mark all as "public" and thus, consumer applications automatically get access to the data inside those streams (i.e., no one needs to give permission). 
 
-Later, streams can have more granular privacy types, and the consumer apps would need to request permission to these streams to be able to view/use the data. Those streams can also get created in an electron app on the users own machine. So they can have full control over the thread and database and who is getting invited to it. 
+Later, streams can have more granular privacy types, and the consumer apps would need to request permission to these streams to be able to view/use the data. Those streams can also get created in an electron app on the users own machine. So they can have full control over the thread and database and who is getting invited to it. The idea is that if you use the web app, we'd create a Stream for you, and invite you to it when you install the electron app. If you create a stream in the electron app, the reverse process takes place (you invite us to it). We'd want to embed a threadsd instance into the electron app. 
 
 ### Open questions:
+- [ ] Should we have 1 FFS per Owner? per Stream? 1 FFS in general?
+- [ ] How does threadsd scale?
+- [ ] How do invites and the ACL work? Are invites only handled on the thread level? Have a vague memory of permissions on the threadsd instance as well?
+- [ ] Should our org match the Hub's orgs?
 - [ ] Where is the best place to store access tokens? Do apps need these access tokens? How can users share their archived data and resources without sharing access tokens? One thing to think about here is that if we put the accesss tokens in the stream-owner thread, then all streams essentially share the same access token. Putting the access token at the stream level itself enables more granular privacy and permission management, but it creates a more complex streams-creation expreience (you have to create a new access token for each stream or grab it from another stream that already has it). It also makes it harder to share user data with a consumer app, without sharing the access tokens. 
 - [ ] Authentication for streams-cli/api (related to the first Q)
 - [ ] General permissions for streams-cli/api (related to the first Q)
